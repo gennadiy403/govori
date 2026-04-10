@@ -172,6 +172,268 @@ NOTES_CFG      = build_notes_config(PLUGINS)
 VALID_TYPES   = {"idea", "commitment", "observation", "todo", "decision", "question", "other"}
 VALID_URGENCY = {"low", "medium", "high"}
 
+# ── Onboarding / Setup ───────────────────────────────────────────────────────
+SETUP_STRINGS = {
+    "en": {
+        "welcome": """
+╭─────────────────────────────────────────────╮
+│                                             │
+│   ✦  Welcome to Wisp                       │
+│      Voice dictation for macOS              │
+│                                             │
+╰─────────────────────────────────────────────╯
+""",
+        "step_keys": """
+┌─ Step 1/3 ─ API Keys ──────────────────────┐
+
+Wisp needs an OpenAI API key for speech-to-text.
+Optionally, add an Anthropic key for smart note classification.
+
+Your keys are stored locally in: ~/.config/wisp/env
+""",
+        "ask_openai": "  OpenAI API key (sk-...): ",
+        "ask_anthropic": "  Anthropic API key (sk-ant-..., Enter to skip): ",
+        "keys_saved": "  ✓ Keys saved to ~/.config/wisp/env\n",
+        "step_access": """
+┌─ Step 2/3 ─ Accessibility Permission ──────┐
+
+Wisp needs Accessibility access to listen for the fn key.
+
+  System Settings → Privacy & Security → Accessibility
+  → Add your terminal app (Terminal / iTerm / Ghostty)
+
+""",
+        "ask_access_done": "  Press Enter when done...",
+        "step_hotkeys": """
+┌─ Step 3/3 ─ How to Use ───────────────────┐
+
+  Hold fn         →  dictate → paste at cursor
+  Option + fn     →  dictate → autocomplete menu (3 suggestions)
+  Shift + fn      →  dictate → save as classified note
+
+  During recording:
+    Enter           toggle auto-send (press Enter after paste)
+    Shift           toggle note mode
+    Esc             cancel recording
+
+  HUD indicators:
+    ●  recording      ◎  transcribing
+    ✦  predicting     ✎  note mode
+    ✓  note saved     ✗  error
+
+""",
+        "step_plugin": """
+┌─ Notes Plugin ─────────────────────────────┐
+
+The notes plugin classifies voice memos into contexts you define.
+""",
+        "ask_plugin": "  Set up notes plugin now? [Y/n]: ",
+        "plugin_created": "  ✓ Notes plugin created. Edit your contexts:\n    ~/.config/wisp/plugins/notes/contexts.yaml\n",
+        "plugin_skipped": "  Skipped. Run `wisp plugin init notes` later.\n",
+        "done": """
+╭─────────────────────────────────────────────╮
+│  ✓ Setup complete!                          │
+│                                             │
+│  Run `wisp` to start dictating.             │
+│  Run `wisp setup` to reconfigure.           │
+╰─────────────────────────────────────────────╯
+""",
+        "lang_prompt": "  Language / Язык [en/ru]: ",
+    },
+    "ru": {
+        "welcome": """
+╭─────────────────────────────────────────────╮
+│                                             │
+│   ✦  Добро пожаловать в Wisp               │
+│      Голосовой ввод для macOS               │
+│                                             │
+╰─────────────────────────────────────────────╯
+""",
+        "step_keys": """
+┌─ Шаг 1/3 ─ API-ключи ─────────────────────┐
+
+Wisp использует OpenAI API для распознавания речи.
+Опционально: ключ Anthropic для умной классификации заметок.
+
+Ключи хранятся локально: ~/.config/wisp/env
+""",
+        "ask_openai": "  OpenAI API ключ (sk-...): ",
+        "ask_anthropic": "  Anthropic API ключ (sk-ant-..., Enter чтобы пропустить): ",
+        "keys_saved": "  ✓ Ключи сохранены в ~/.config/wisp/env\n",
+        "step_access": """
+┌─ Шаг 2/3 ─ Разрешение Accessibility ──────┐
+
+Wisp нужен доступ к Accessibility чтобы слушать клавишу fn.
+
+  Системные настройки → Конфиденциальность → Универсальный доступ
+  → Добавь свой терминал (Terminal / iTerm / Ghostty)
+
+""",
+        "ask_access_done": "  Нажми Enter когда готово...",
+        "step_hotkeys": """
+┌─ Шаг 3/3 ─ Как пользоваться ──────────────┐
+
+  Зажми fn        →  диктовка → вставка в курсор
+  Option + fn     →  диктовка → меню автодополнения (3 варианта)
+  Shift + fn      →  диктовка → классификация + сохранение заметки
+
+  Во время записи:
+    Enter           авто-отправка (нажать Enter после вставки)
+    Shift           переключить режим заметки
+    Esc             отмена
+
+  Индикаторы HUD:
+    ●  запись         ◎  транскрипция
+    ✦  предсказание   ✎  режим заметки
+    ✓  заметка сохр.  ✗  ошибка
+
+""",
+        "step_plugin": """
+┌─ Плагин заметок ───────────────────────────┐
+
+Плагин заметок классифицирует голосовые мемо по контекстам,
+которые ты определяешь сам.
+""",
+        "ask_plugin": "  Настроить плагин заметок сейчас? [Y/n]: ",
+        "plugin_created": "  ✓ Плагин заметок создан. Отредактируй контексты:\n    ~/.config/wisp/plugins/notes/contexts.yaml\n",
+        "plugin_skipped": "  Пропущено. Запусти `wisp plugin init notes` позже.\n",
+        "done": """
+╭─────────────────────────────────────────────╮
+│  ✓ Настройка завершена!                     │
+│                                             │
+│  Запусти `wisp` чтобы начать диктовку.      │
+│  Запусти `wisp setup` для перенастройки.    │
+╰─────────────────────────────────────────────╯
+""",
+        "lang_prompt": "  Language / Язык [en/ru]: ",
+    },
+}
+
+
+def _ask(prompt, default=""):
+    """Prompt user for input."""
+    try:
+        val = input(prompt).strip()
+        return val if val else default
+    except (EOFError, KeyboardInterrupt):
+        print()
+        sys.exit(0)
+
+
+def cli_setup(force=False):
+    """Interactive first-run setup / onboarding."""
+    env_file = CONFIG_DIR / "env"
+
+    # Language selection (always in both languages)
+    print()
+    print("  ✦  Wisp — voice dictation for macOS")
+    print("     Wisp — голосовой ввод для macOS")
+    print()
+    lang = _ask("  Language / Язык [en/ru]: ", "en").lower()
+    if lang not in ("en", "ru"):
+        lang = "en"
+
+    s = SETUP_STRINGS[lang]
+    print(s["welcome"])
+
+    # Step 1: API keys
+    print(s["step_keys"])
+    openai_key = _ask(s["ask_openai"])
+    anthropic_key = _ask(s["ask_anthropic"])
+
+    if openai_key or anthropic_key:
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        lines = []
+        if openai_key:
+            lines.append(f"export OPENAI_API_KEY={openai_key}")
+        elif env_file.exists():
+            # Preserve existing key
+            for line in env_file.read_text().splitlines():
+                if line.startswith("export OPENAI_API_KEY="):
+                    lines.append(line)
+                    break
+        if anthropic_key:
+            lines.append(f"export ANTHROPIC_API_KEY={anthropic_key}")
+        elif env_file.exists():
+            for line in env_file.read_text().splitlines():
+                if line.startswith("export ANTHROPIC_API_KEY="):
+                    lines.append(line)
+                    break
+        env_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        env_file.chmod(0o600)
+        print(s["keys_saved"])
+
+    # Step 2: Accessibility
+    print(s["step_access"])
+    _ask(s["ask_access_done"])
+
+    # Step 3: Hotkeys tutorial
+    print(s["step_hotkeys"])
+
+    # Notes plugin
+    notes_dir = PLUGINS_DIR / "notes"
+    if not notes_dir.exists():
+        print(s["step_plugin"])
+        setup_notes = _ask(s["ask_plugin"], "y").lower()
+        if setup_notes in ("y", "yes", "д", "да", ""):
+            notes_dir.mkdir(parents=True, exist_ok=True)
+            (notes_dir / "plugin.yaml").write_text(
+                "name: notes\n"
+                "description: Classify and save voice notes with AI\n"
+                "trigger: shift+fn\n"
+                "classifier_model: claude-haiku-4-5-20251001\n"
+                "\n"
+                f"output_dir: ~/wisp-notes/{{year}}/{{month}}\n"
+                f"index_file: ~/wisp-notes/index/recent.jsonl\n"
+                "\n"
+                "whisper_prompt: \"\"\n",
+                encoding="utf-8",
+            )
+            (notes_dir / "contexts.yaml").write_text(
+                "- key: work\n"
+                "  description: My day job\n"
+                "\n"
+                "- key: personal\n"
+                "  description: Personal life, family, health\n",
+                encoding="utf-8",
+            )
+            (notes_dir / "stuck.yaml").write_text(
+                "# Optional: ongoing tasks to link notes to\n"
+                "# - key: my_task\n"
+                "#   description: What this task is about\n",
+                encoding="utf-8",
+            )
+            print(s["plugin_created"])
+        else:
+            print(s["plugin_skipped"])
+
+    # Save language to config
+    cfg_data = _load_yaml(CONFIG_FILE)
+    cfg_data["language"] = lang
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    if yaml:
+        CONFIG_FILE.write_text(
+            yaml.dump(cfg_data, default_flow_style=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+    else:
+        CONFIG_FILE.write_text(
+            json.dumps(cfg_data, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+
+    # Mark setup as done
+    (CONFIG_DIR / ".setup_done").touch()
+
+    print(s["done"])
+    sys.exit(0)
+
+
+def _is_first_run():
+    """Check if setup has never been run."""
+    return not (CONFIG_DIR / ".setup_done").exists()
+
+
 # ── CLI subcommands ──────────────────────────────────────────────────────────
 def cli_plugin(args):
     """Handle `wisp plugin <subcommand>` CLI."""
@@ -252,9 +514,17 @@ def cli_main():
     args = sys.argv[1:]
     # Filter out flags like --gpt
     positional = [a for a in args if not a.startswith("--")]
+
+    if positional and positional[0] == "setup":
+        cli_setup(force=True)
+
     if positional and positional[0] == "plugin":
         cli_plugin(positional[1:])
         sys.exit(0)
+
+    # Auto-trigger setup on first run
+    if _is_first_run():
+        cli_setup()
 
 
 # Run CLI routing before anything else
