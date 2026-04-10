@@ -176,134 +176,132 @@ VALID_URGENCY = {"low", "medium", "high"}
 SETUP_STRINGS = {
     "en": {
         "welcome": """
-╭─────────────────────────────────────────────╮
-│                                             │
-│   ✦  Welcome to Wisp                       │
-│      Voice dictation for macOS              │
-│                                             │
-╰─────────────────────────────────────────────╯
+\033[2m         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\033[0m
+\033[36m              ✦ voice dictation for macOS\033[0m
+\033[2m         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\033[0m
 """,
         "step_keys": """
-┌─ Step 1/3 ─ API Keys ──────────────────────┐
+\033[33m  ── Step 1/3 ─ API Keys ──────────────────────────────\033[0m
 
-Wisp needs an OpenAI API key for speech-to-text.
-Optionally, add an Anthropic key for smart note classification.
+  Wisp needs an OpenAI API key for speech-to-text.
+  \033[2mOptionally, add an Anthropic key for smart note classification.\033[0m
 
-Your keys are stored locally in: ~/.config/wisp/env
+  \033[2mYour keys are stored locally in ~/.config/wisp/env\033[0m
 """,
-        "ask_openai": "  OpenAI API key (sk-...): ",
-        "ask_anthropic": "  Anthropic API key (sk-ant-..., Enter to skip): ",
-        "keys_saved": "  ✓ Keys saved to ~/.config/wisp/env\n",
+        "ask_openai": "  \033[1mOpenAI API key\033[0m (sk-...): ",
+        "ask_anthropic": "  \033[1mAnthropic API key\033[0m (sk-ant-..., Enter to skip): ",
+        "keys_saved": "\n  \033[32m✓ Keys saved to ~/.config/wisp/env\033[0m\n",
         "step_access": """
-┌─ Step 2/3 ─ Accessibility Permission ──────┐
+\033[33m  ── Step 2/3 ─ Accessibility Permission ──────────────\033[0m
 
-Wisp needs Accessibility access to listen for the fn key.
+  Wisp needs Accessibility access to listen for the \033[1mfn\033[0m key.
 
-  System Settings → Privacy & Security → Accessibility
-  → Add your terminal app (Terminal / iTerm / Ghostty)
+  \033[36mSystem Settings → Privacy & Security → Accessibility\033[0m
+  \033[36m→ Add your terminal app (Terminal / iTerm / Ghostty)\033[0m
 
 """,
-        "ask_access_done": "  Press Enter when done...",
+        "ask_access_done": "  \033[2mPress Enter when done...\033[0m",
         "step_hotkeys": """
-┌─ Step 3/3 ─ How to Use ───────────────────┐
+\033[33m  ── Step 3/3 ─ How to Use ────────────────────────────\033[0m
 
-  Hold fn         →  dictate → paste at cursor
-  Option + fn     →  dictate → autocomplete menu (3 suggestions)
-  Shift + fn      →  dictate → save as classified note
+  \033[1mHold fn\033[0m         →  dictate → paste at cursor
+  \033[1mOption + fn\033[0m     →  dictate → autocomplete menu \033[2m(3 suggestions)\033[0m
+  \033[1mShift + fn\033[0m      →  dictate → save as classified note
 
-  During recording:
-    Enter           toggle auto-send (press Enter after paste)
-    Shift           toggle note mode
-    Esc             cancel recording
+  \033[2mDuring recording:\033[0m
+    \033[1mEnter\033[0m           toggle auto-send
+    \033[1mShift\033[0m           toggle note mode
+    \033[1mEsc\033[0m             cancel
 
-  HUD indicators:
-    ●  recording      ◎  transcribing
-    ✦  predicting     ✎  note mode
-    ✓  note saved     ✗  error
+  \033[2mHUD indicators:\033[0m
+    \033[31m●\033[0m  recording      \033[33m◎\033[0m  transcribing
+    \033[35m✦\033[0m  predicting     \033[32m✎\033[0m  note mode
+    \033[32m✓\033[0m  note saved     \033[31m✗\033[0m  error
 
 """,
         "step_plugin": """
-┌─ Notes Plugin ─────────────────────────────┐
+\033[33m  ── Notes Plugin ────────────────────────────────────\033[0m
 
-The notes plugin classifies voice memos into contexts you define.
+  The notes plugin classifies voice memos into contexts you define.
 """,
-        "ask_plugin": "  Set up notes plugin now? [Y/n]: ",
-        "plugin_created": "  ✓ Notes plugin created. Edit your contexts:\n    ~/.config/wisp/plugins/notes/contexts.yaml\n",
-        "plugin_skipped": "  Skipped. Run `wisp plugin init notes` later.\n",
+        "ask_plugin": "  Set up notes plugin now? [\033[1mY\033[0m/n]: ",
+        "plugin_created": "\n  \033[32m✓ Notes plugin created.\033[0m Edit your contexts:\n    \033[36m~/.config/wisp/plugins/notes/contexts.yaml\033[0m\n",
+        "plugin_skipped": "  \033[2mSkipped. Run `wisp plugin init notes` later.\033[0m\n",
         "done": """
-╭─────────────────────────────────────────────╮
-│  ✓ Setup complete!                          │
-│                                             │
-│  Run `wisp` to start dictating.             │
-│  Run `wisp setup` to reconfigure.           │
-╰─────────────────────────────────────────────╯
+\033[2m╭──────────────────────────────────────────────────────╮\033[0m
+
+  \033[32m✓ Setup complete!\033[0m
+
+  Run \033[1mwisp\033[0m to start dictating.
+  Run \033[1mwisp setup\033[0m to reconfigure.
+
+\033[2m╰──────────────────────────────────────────────────────╯\033[0m
 """,
         "lang_prompt": "  Language / Язык [en/ru]: ",
     },
     "ru": {
         "welcome": """
-╭─────────────────────────────────────────────╮
-│                                             │
-│   ✦  Добро пожаловать в Wisp               │
-│      Голосовой ввод для macOS               │
-│                                             │
-╰─────────────────────────────────────────────╯
+\033[2m         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\033[0m
+\033[36m              ✦ голосовой ввод для macOS\033[0m
+\033[2m         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\033[0m
 """,
         "step_keys": """
-┌─ Шаг 1/3 ─ API-ключи ─────────────────────┐
+\033[33m  ── Шаг 1/3 ─ API-ключи ─────────────────────────────\033[0m
 
-Wisp использует OpenAI API для распознавания речи.
-Опционально: ключ Anthropic для умной классификации заметок.
+  Wisp использует OpenAI API для распознавания речи.
+  \033[2mОпционально: ключ Anthropic для умной классификации заметок.\033[0m
 
-Ключи хранятся локально: ~/.config/wisp/env
+  \033[2mКлючи хранятся локально в ~/.config/wisp/env\033[0m
 """,
-        "ask_openai": "  OpenAI API ключ (sk-...): ",
-        "ask_anthropic": "  Anthropic API ключ (sk-ant-..., Enter чтобы пропустить): ",
-        "keys_saved": "  ✓ Ключи сохранены в ~/.config/wisp/env\n",
+        "ask_openai": "  \033[1mOpenAI API ключ\033[0m (sk-...): ",
+        "ask_anthropic": "  \033[1mAnthropic API ключ\033[0m (sk-ant-..., Enter чтобы пропустить): ",
+        "keys_saved": "\n  \033[32m✓ Ключи сохранены в ~/.config/wisp/env\033[0m\n",
         "step_access": """
-┌─ Шаг 2/3 ─ Разрешение Accessibility ──────┐
+\033[33m  ── Шаг 2/3 ─ Разрешение Accessibility ──────────────\033[0m
 
-Wisp нужен доступ к Accessibility чтобы слушать клавишу fn.
+  Wisp нужен доступ к Accessibility чтобы слушать клавишу \033[1mfn\033[0m.
 
-  Системные настройки → Конфиденциальность → Универсальный доступ
-  → Добавь свой терминал (Terminal / iTerm / Ghostty)
+  \033[36mСистемные настройки → Конфиденциальность → Универсальный доступ\033[0m
+  \033[36m→ Добавь свой терминал (Terminal / iTerm / Ghostty)\033[0m
 
 """,
-        "ask_access_done": "  Нажми Enter когда готово...",
+        "ask_access_done": "  \033[2mНажми Enter когда готово...\033[0m",
         "step_hotkeys": """
-┌─ Шаг 3/3 ─ Как пользоваться ──────────────┐
+\033[33m  ── Шаг 3/3 ─ Как пользоваться ───────────────────────\033[0m
 
-  Зажми fn        →  диктовка → вставка в курсор
-  Option + fn     →  диктовка → меню автодополнения (3 варианта)
-  Shift + fn      →  диктовка → классификация + сохранение заметки
+  \033[1mЗажми fn\033[0m        →  диктовка → вставка в курсор
+  \033[1mOption + fn\033[0m     →  диктовка → меню автодополнения \033[2m(3 варианта)\033[0m
+  \033[1mShift + fn\033[0m      →  диктовка → классификация + сохранение заметки
 
-  Во время записи:
-    Enter           авто-отправка (нажать Enter после вставки)
-    Shift           переключить режим заметки
-    Esc             отмена
+  \033[2mВо время записи:\033[0m
+    \033[1mEnter\033[0m           авто-отправка
+    \033[1mShift\033[0m           переключить режим заметки
+    \033[1mEsc\033[0m             отмена
 
-  Индикаторы HUD:
-    ●  запись         ◎  транскрипция
-    ✦  предсказание   ✎  режим заметки
-    ✓  заметка сохр.  ✗  ошибка
+  \033[2mИндикаторы HUD:\033[0m
+    \033[31m●\033[0m  запись         \033[33m◎\033[0m  транскрипция
+    \033[35m✦\033[0m  предсказание   \033[32m✎\033[0m  режим заметки
+    \033[32m✓\033[0m  заметка сохр.  \033[31m✗\033[0m  ошибка
 
 """,
         "step_plugin": """
-┌─ Плагин заметок ───────────────────────────┐
+\033[33m  ── Плагин заметок ──────────────────────────────────\033[0m
 
-Плагин заметок классифицирует голосовые мемо по контекстам,
-которые ты определяешь сам.
+  Плагин заметок классифицирует голосовые мемо по контекстам,
+  которые ты определяешь сам.
 """,
-        "ask_plugin": "  Настроить плагин заметок сейчас? [Y/n]: ",
-        "plugin_created": "  ✓ Плагин заметок создан. Отредактируй контексты:\n    ~/.config/wisp/plugins/notes/contexts.yaml\n",
-        "plugin_skipped": "  Пропущено. Запусти `wisp plugin init notes` позже.\n",
+        "ask_plugin": "  Настроить плагин заметок сейчас? [\033[1mY\033[0m/n]: ",
+        "plugin_created": "\n  \033[32m✓ Плагин заметок создан.\033[0m Отредактируй контексты:\n    \033[36m~/.config/wisp/plugins/notes/contexts.yaml\033[0m\n",
+        "plugin_skipped": "  \033[2mПропущено. Запусти `wisp plugin init notes` позже.\033[0m\n",
         "done": """
-╭─────────────────────────────────────────────╮
-│  ✓ Настройка завершена!                     │
-│                                             │
-│  Запусти `wisp` чтобы начать диктовку.      │
-│  Запусти `wisp setup` для перенастройки.    │
-╰─────────────────────────────────────────────╯
+\033[2m╭──────────────────────────────────────────────────────╮\033[0m
+
+  \033[32m✓ Настройка завершена!\033[0m
+
+  Запусти \033[1mwisp\033[0m чтобы начать диктовку.
+  Запусти \033[1mwisp setup\033[0m для перенастройки.
+
+\033[2m╰──────────────────────────────────────────────────────╯\033[0m
 """,
         "lang_prompt": "  Language / Язык [en/ru]: ",
     },
@@ -326,10 +324,14 @@ def cli_setup(force=False):
 
     # Language selection (always in both languages)
     print()
-    print("  ✦  Wisp — voice dictation for macOS")
-    print("     Wisp — голосовой ввод для macOS")
+    print("\033[1m         ██╗    ██╗██╗███████╗██████╗\033[0m")
+    print("\033[1m         ██║    ██║██║██╔════╝██╔══██╗\033[0m")
+    print("\033[1m         ██║ █╗ ██║██║███████╗██████╔╝\033[0m")
+    print("\033[1m         ██║███╗██║██║╚════██║██╔═══╝\033[0m")
+    print("\033[1m         ╚███╔███╔╝██║███████║██║\033[0m")
+    print("\033[1m          ╚══╝╚══╝ ╚═╝╚══════╝╚═╝\033[0m")
     print()
-    lang = _ask("  Language / Язык [en/ru]: ", "en").lower()
+    lang = _ask("  \033[2mLanguage / Язык\033[0m [\033[1men\033[0m/\033[1mru\033[0m]: ", "en").lower()
     if lang not in ("en", "ru"):
         lang = "en"
 
