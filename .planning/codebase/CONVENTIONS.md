@@ -5,7 +5,7 @@
 ## Naming Patterns
 
 **Files:**
-- Single-file project: `wisp.py` is the entire application
+- Single-file project: `govori.py` is the entire application
 - Helper/example configs: lowercase with hyphens (`plugin.yaml`, `contexts.yaml`, `stuck.yaml`)
 - Docs: `README.md`
 
@@ -40,7 +40,7 @@
 
 **Section Separators:**
 - Visual ASCII separators mark logical sections: `# ── Section Name ─────────────────────────`
-- Sections in `wisp.py`: Paths, Config loading, Onboarding/Setup, CLI subcommands, State, HUD, Audio, Note mode, Merge-check pipeline, Predict mode, Hotkey, Notes CLI, Main
+- Sections in `govori.py`: Paths, Config loading, Onboarding/Setup, CLI subcommands, State, HUD, Audio, Note mode, Merge-check pipeline, Predict mode, Hotkey, Notes CLI, Main
 
 ## Import Organization
 
@@ -116,7 +116,7 @@ except Exception as e:
 
 ## Module Design
 
-**Structure:** Single monolithic module (`wisp.py`) — no packages or sub-modules
+**Structure:** Single monolithic module (`govori.py`) — no packages or sub-modules
 
 **Exports:** Not applicable (script, not library)
 

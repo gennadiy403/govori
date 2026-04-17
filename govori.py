@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Wisp — voice dictation for macOS.
+Govori — voice dictation for macOS.
 Hold fn to record, release to transcribe and paste.
 
 Modes:
@@ -8,7 +8,7 @@ Modes:
   Option+fn   — dictate → predict (autocomplete menu)
   Shift+fn    — dictate → classify + save as note (requires notes plugin)
 
-Plugins live in ~/.config/wisp/plugins/<name>/.
+Plugins live in ~/.config/govori/plugins/<name>/.
 """
 
 import sys
@@ -42,7 +42,7 @@ import signal
 import CoreFoundation
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-CONFIG_DIR  = Path.home() / ".config" / "wisp"
+CONFIG_DIR  = Path.home() / ".config" / "govori"
 CONFIG_FILE = CONFIG_DIR / "config.yaml"
 PLUGINS_DIR = CONFIG_DIR / "plugins"
 
@@ -70,12 +70,14 @@ def _load_yaml_list(path):
 
 
 def load_config():
-    """Load base config from ~/.config/wisp/config.yaml."""
+    """Load base config from ~/.config/govori/config.yaml."""
     defaults = {
         "language": "ru",
         "model": "whisper-1",
         "sample_rate": 16000,
         "whisper_prompt": "",
+        "base_url": None,
+        "api_key_env": "OPENAI_API_KEY",
     }
     cfg = _load_yaml(CONFIG_FILE)
     defaults.update(cfg)
@@ -83,7 +85,7 @@ def load_config():
 
 
 def load_plugins():
-    """Discover and load all plugins from ~/.config/wisp/plugins/."""
+    """Discover and load all plugins from ~/.config/govori/plugins/."""
     plugins = {}
     if not PLUGINS_DIR.exists():
         return plugins
@@ -145,8 +147,8 @@ def build_notes_config(plugins):
     )
 
     # Resolve output paths
-    output_dir = notes.get("output_dir", "~/wisp-notes/{year}/{month}")
-    index_file = notes.get("index_file", "~/wisp-notes/index/recent.jsonl")
+    output_dir = notes.get("output_dir", "~/govori-notes/{year}/{month}")
+    index_file = notes.get("index_file", "~/govori-notes/index/recent.jsonl")
 
     return {
         "classifier_model": notes.get("classifier_model", "claude-haiku-4-5-20251001"),
@@ -183,18 +185,18 @@ SETUP_STRINGS = {
         "step_keys": """
 \033[33m  ── Step 1/3 ─ API Keys ──────────────────────────────\033[0m
 
-  Wisp needs an OpenAI API key for speech-to-text.
+  Govori needs an OpenAI API key for speech-to-text.
   \033[2mOptionally, add an Anthropic key for smart note classification.\033[0m
 
-  \033[2mYour keys are stored locally in ~/.config/wisp/env\033[0m
+  \033[2mYour keys are stored locally in ~/.config/govori/env\033[0m
 """,
         "ask_openai": "  \033[1mOpenAI API key\033[0m (sk-...): ",
         "ask_anthropic": "  \033[1mAnthropic API key\033[0m (sk-ant-..., Enter to skip): ",
-        "keys_saved": "\n  \033[32m✓ Keys saved to ~/.config/wisp/env\033[0m\n",
+        "keys_saved": "\n  \033[32m✓ Keys saved to ~/.config/govori/env\033[0m\n",
         "step_access": """
 \033[33m  ── Step 2/3 ─ Accessibility Permission ──────────────\033[0m
 
-  Wisp needs Accessibility access to listen for the \033[1mfn\033[0m key.
+  Govori needs Accessibility access to listen for the \033[1mfn\033[0m key.
 
   \033[36mSystem Settings → Privacy & Security → Accessibility\033[0m
   \033[36m→ Add your terminal app (Terminal / iTerm / Ghostty)\033[0m
@@ -225,15 +227,15 @@ SETUP_STRINGS = {
   The notes plugin classifies voice memos into contexts you define.
 """,
         "ask_plugin": "  Set up notes plugin now? [\033[1mY\033[0m/n]: ",
-        "plugin_created": "\n  \033[32m✓ Notes plugin created.\033[0m Edit your contexts:\n    \033[36m~/.config/wisp/plugins/notes/contexts.yaml\033[0m\n",
-        "plugin_skipped": "  \033[2mSkipped. Run `wisp plugin init notes` later.\033[0m\n",
+        "plugin_created": "\n  \033[32m✓ Notes plugin created.\033[0m Edit your contexts:\n    \033[36m~/.config/govori/plugins/notes/contexts.yaml\033[0m\n",
+        "plugin_skipped": "  \033[2mSkipped. Run `govori plugin init notes` later.\033[0m\n",
         "done": """
 \033[2m╭──────────────────────────────────────────────────────╮\033[0m
 
   \033[32m✓ Setup complete!\033[0m
 
-  Run \033[1mwisp\033[0m to start dictating.
-  Run \033[1mwisp setup\033[0m to reconfigure.
+  Run \033[1mgovori\033[0m to start dictating.
+  Run \033[1mgovori setup\033[0m to reconfigure.
 
 \033[2m╰──────────────────────────────────────────────────────╯\033[0m
 """,
@@ -248,18 +250,18 @@ SETUP_STRINGS = {
         "step_keys": """
 \033[33m  ── Шаг 1/3 ─ API-ключи ─────────────────────────────\033[0m
 
-  Wisp использует OpenAI API для распознавания речи.
+  Govori использует OpenAI API для распознавания речи.
   \033[2mОпционально: ключ Anthropic для умной классификации заметок.\033[0m
 
-  \033[2mКлючи хранятся локально в ~/.config/wisp/env\033[0m
+  \033[2mКлючи хранятся локально в ~/.config/govori/env\033[0m
 """,
         "ask_openai": "  \033[1mOpenAI API ключ\033[0m (sk-...): ",
         "ask_anthropic": "  \033[1mAnthropic API ключ\033[0m (sk-ant-..., Enter чтобы пропустить): ",
-        "keys_saved": "\n  \033[32m✓ Ключи сохранены в ~/.config/wisp/env\033[0m\n",
+        "keys_saved": "\n  \033[32m✓ Ключи сохранены в ~/.config/govori/env\033[0m\n",
         "step_access": """
 \033[33m  ── Шаг 2/3 ─ Разрешение Accessibility ──────────────\033[0m
 
-  Wisp нужен доступ к Accessibility чтобы слушать клавишу \033[1mfn\033[0m.
+  Govori нужен доступ к Accessibility чтобы слушать клавишу \033[1mfn\033[0m.
 
   \033[36mСистемные настройки → Конфиденциальность → Универсальный доступ\033[0m
   \033[36m→ Добавь свой терминал (Terminal / iTerm / Ghostty)\033[0m
@@ -291,15 +293,15 @@ SETUP_STRINGS = {
   которые ты определяешь сам.
 """,
         "ask_plugin": "  Настроить плагин заметок сейчас? [\033[1mY\033[0m/n]: ",
-        "plugin_created": "\n  \033[32m✓ Плагин заметок создан.\033[0m Отредактируй контексты:\n    \033[36m~/.config/wisp/plugins/notes/contexts.yaml\033[0m\n",
-        "plugin_skipped": "  \033[2mПропущено. Запусти `wisp plugin init notes` позже.\033[0m\n",
+        "plugin_created": "\n  \033[32m✓ Плагин заметок создан.\033[0m Отредактируй контексты:\n    \033[36m~/.config/govori/plugins/notes/contexts.yaml\033[0m\n",
+        "plugin_skipped": "  \033[2mПропущено. Запусти `govori plugin init notes` позже.\033[0m\n",
         "done": """
 \033[2m╭──────────────────────────────────────────────────────╮\033[0m
 
   \033[32m✓ Настройка завершена!\033[0m
 
-  Запусти \033[1mwisp\033[0m чтобы начать диктовку.
-  Запусти \033[1mwisp setup\033[0m для перенастройки.
+  Запусти \033[1mgovori\033[0m чтобы начать диктовку.
+  Запусти \033[1mgovori setup\033[0m для перенастройки.
 
 \033[2m╰──────────────────────────────────────────────────────╯\033[0m
 """,
@@ -385,8 +387,8 @@ def cli_setup(force=False):
                 "trigger: shift+fn\n"
                 "classifier_model: claude-haiku-4-5-20251001\n"
                 "\n"
-                f"output_dir: ~/wisp-notes/{{year}}/{{month}}\n"
-                f"index_file: ~/wisp-notes/index/recent.jsonl\n"
+                f"output_dir: ~/govori-notes/{{year}}/{{month}}\n"
+                f"index_file: ~/govori-notes/index/recent.jsonl\n"
                 "\n"
                 "whisper_prompt: \"\"\n",
                 encoding="utf-8",
@@ -438,9 +440,9 @@ def _is_first_run():
 
 # ── CLI subcommands ──────────────────────────────────────────────────────────
 def cli_plugin(args):
-    """Handle `wisp plugin <subcommand>` CLI."""
+    """Handle `govori plugin <subcommand>` CLI."""
     if not args:
-        print("Usage: wisp plugin <list|add|init|remove>")
+        print("Usage: govori plugin <list|add|init|remove>")
         sys.exit(1)
 
     sub = args[0]
@@ -455,7 +457,7 @@ def cli_plugin(args):
 
     elif sub == "init":
         if len(args) < 2:
-            print("Usage: wisp plugin init <name>")
+            print("Usage: govori plugin init <name>")
             sys.exit(1)
         name = args[1]
         dest = PLUGINS_DIR / name
@@ -469,8 +471,8 @@ def cli_plugin(args):
             f"trigger: shift+fn\n"
             f"classifier_model: claude-haiku-4-5-20251001\n"
             f"\n"
-            f"output_dir: ~/wisp-notes/{{year}}/{{month}}\n"
-            f"index_file: ~/wisp-notes/index/recent.jsonl\n"
+            f"output_dir: ~/govori-notes/{{year}}/{{month}}\n"
+            f"index_file: ~/govori-notes/index/recent.jsonl\n"
             f"\n"
             f"whisper_prompt: \"\"\n",
             encoding="utf-8",
@@ -490,11 +492,11 @@ def cli_plugin(args):
             encoding="utf-8",
         )
         print(f"Plugin scaffold created at {dest}/")
-        print(f"Edit contexts.yaml to define your contexts, then restart wisp.")
+        print(f"Edit contexts.yaml to define your contexts, then restart govori.")
 
     elif sub == "remove":
         if len(args) < 2:
-            print("Usage: wisp plugin remove <name>")
+            print("Usage: govori plugin remove <name>")
             sys.exit(1)
         name = args[1]
         dest = PLUGINS_DIR / name
@@ -507,7 +509,7 @@ def cli_plugin(args):
 
     else:
         print(f"Unknown subcommand: {sub}")
-        print("Usage: wisp plugin <list|init|remove>")
+        print("Usage: govori plugin <list|init|remove>")
         sys.exit(1)
 
 
@@ -519,7 +521,7 @@ def cli_main():
     args = sys.argv[1:]
 
     if "--version" in args or "-v" in args:
-        print(f"wisp {VERSION}")
+        print(f"govori {VERSION}")
         sys.exit(0)
 
     # Filter out flags like --gpt
@@ -531,6 +533,25 @@ def cli_main():
     if positional and positional[0] == "plugin":
         cli_plugin(positional[1:])
         sys.exit(0)
+
+    if positional and positional[0] == "notes":
+        # Defer execution until module-level helpers are defined.
+        # Handled near __main__.
+        globals()["_NOTES_CLI_ARGS"] = positional[1:]
+        return
+
+    if positional and positional[0] == "note":
+        # Text input subcommand: all args after "note" are joined as note body.
+        # Read from stdin if no args provided (govori note < file.txt).
+        if len(positional) < 2 and sys.stdin.isatty():
+            print("Usage: govori note <text>  |  echo <text> | govori note")
+            sys.exit(1)
+        if len(positional) >= 2:
+            text = " ".join(positional[1:])
+        else:
+            text = sys.stdin.read()
+        globals()["_NOTE_CLI_TEXT"] = text
+        return
 
     # Auto-trigger setup on first run
     if _is_first_run():
@@ -553,7 +574,13 @@ WHISPER_HALLUCINATIONS = {
     "ご視聴ありがとうございました",
 }
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+_api_key_env = CONFIG.get("api_key_env") or "OPENAI_API_KEY"
+_api_key = os.environ.get(_api_key_env)
+if not _api_key:
+    print(f"{_api_key_env} not set — check ~/.config/govori/env", flush=True)
+    sys.exit(1)
+_base_url = CONFIG.get("base_url")
+client = OpenAI(api_key=_api_key, base_url=_base_url) if _base_url else OpenAI(api_key=_api_key)
 
 # Anthropic client — lazy, only if note mode is used
 _anthropic_client = None
@@ -567,7 +594,7 @@ def _get_anthropic_client():
         return None
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
-        print("ANTHROPIC_API_KEY not set — check ~/.config/wisp/env", flush=True)
+        print("ANTHROPIC_API_KEY not set — check ~/.config/govori/env", flush=True)
         return None
     _anthropic_client = Anthropic(api_key=key)
     return _anthropic_client
@@ -583,12 +610,13 @@ cancelled    = False
 predict_mode = False
 note_mode    = False
 
-print("Wisp ready.", flush=True)
-if NOTES_CFG:
-    n_ctx = len(NOTES_CFG["valid_contexts"])
-    print(f"  notes plugin: {n_ctx} contexts loaded", flush=True)
-else:
-    print("  notes plugin: not installed (shift+fn disabled)", flush=True)
+if "_NOTES_CLI_ARGS" not in globals() and "_NOTE_CLI_TEXT" not in globals():
+    print("Govori ready.", flush=True)
+    if NOTES_CFG:
+        n_ctx = len(NOTES_CFG["valid_contexts"])
+        print(f"  notes plugin: {n_ctx} contexts loaded", flush=True)
+    else:
+        print("  notes plugin: not installed (shift+fn disabled)", flush=True)
 
 # ── HUD ───────────────────────────────────────────────────────────────────────
 hud_window = None
@@ -600,10 +628,12 @@ def setup_hud():
     global hud_window, hud_label
 
     screen = AppKit.NSScreen.mainScreen().frame()
-    x = (screen.size.width - _HUD_S) / 2
+    # Position: bottom-left corner (aligned with optional Hammerspoon status HUD).
+    x = 6
+    y = 0
     style = AppKit.NSWindowStyleMaskBorderless | AppKit.NSWindowStyleMaskNonactivatingPanel
     win = AppKit.NSPanel.alloc().initWithContentRect_styleMask_backing_defer_(
-        AppKit.NSMakeRect(x, 60, _HUD_S, _HUD_S), style,
+        AppKit.NSMakeRect(x, y, _HUD_S, _HUD_S), style,
         AppKit.NSBackingStoreBuffered, False,
     )
     win.setLevel_(AppKit.NSFloatingWindowLevel + 1)
@@ -683,10 +713,7 @@ def set_hud(visible, mode="recording"):
                 AppKit.NSColor.colorWithRed_green_blue_alpha_(1.0, 0.3, 0.3, 1.0)
             )
         if visible:
-            screen = AppKit.NSScreen.mainScreen().frame()
-            hud_window.setFrameOrigin_(
-                AppKit.NSMakePoint((screen.size.width - _HUD_S) / 2, 60)
-            )
+            hud_window.setFrameOrigin_(AppKit.NSMakePoint(6, 0))
             hud_window.orderFrontRegardless()
         else:
             hud_window.orderOut_(None)
@@ -785,7 +812,7 @@ def _note_pipeline_background(audio, duration_sec):
         print("(empty)", flush=True)
         return
     print(f"→ {text}", flush=True)
-    save_as_note(text, duration_sec, silent=True)
+    save_or_merge_note(text, duration_sec)
 
 
 def stop_and_transcribe():
@@ -810,7 +837,7 @@ def stop_and_transcribe():
     audio = np.concatenate(audio_chunks, axis=0).flatten()
 
     rms = np.sqrt(np.mean(audio ** 2))
-    if rms < 0.001:
+    if rms < 0.0001:
         set_hud(False)
         print(f"(silence, rms={rms:.4f})", flush=True)
         return
@@ -818,7 +845,7 @@ def stop_and_transcribe():
     # ── NOTE MODE: fire-and-forget ────────────────────────────────────────────
     if note_mode:
         if not NOTES_CFG:
-            print("notes plugin not installed — run: wisp plugin init notes", flush=True)
+            print("notes plugin not installed — run: govori plugin init notes", flush=True)
             set_hud(False)
             return
         duration = total_samples / SAMPLE_RATE
@@ -1098,6 +1125,216 @@ def save_as_note(text, duration_sec, silent=False):
         threading.Thread(target=_hide, daemon=True).start()
 
 
+# ── Merge-check pipeline ─────────────────────────────────────────────────────
+MERGE_WINDOW_HOURS = 6
+MERGE_CONFIDENCE_THRESHOLD = 0.85
+
+
+def _find_merge_candidates(contexts, hours=MERGE_WINDOW_HOURS):
+    """Return recent index entries matching context, within time window."""
+    if not NOTES_CFG or not contexts:
+        return []
+    cutoff = datetime.datetime.now().astimezone() - datetime.timedelta(hours=hours)
+    entries = _read_index_entries(limit=20)
+    out = []
+    ctx_set = set(contexts)
+    for e in entries:
+        try:
+            created = datetime.datetime.fromisoformat(e.get("created", ""))
+        except Exception:
+            continue
+        if created < cutoff:
+            continue
+        if not (set(e.get("contexts") or []) & ctx_set):
+            continue
+        if not Path(e.get("path", "")).exists():
+            continue
+        out.append(e)
+    return out
+
+
+def _decide_merge(new_text, candidates):
+    """Ask Haiku whether new_text continues one of candidates.
+    Returns dict: {action: 'new'|'merge', target_id, confidence, reason}."""
+    if not candidates:
+        return {"action": "new", "target_id": None, "confidence": 1.0, "reason": "no candidates"}
+    anthropic_client = _get_anthropic_client()
+    if anthropic_client is None:
+        return {"action": "new", "target_id": None, "confidence": 0.0, "reason": "no anthropic"}
+
+    cand_block = "\n".join(
+        f"[{i}] id={e['id']}  ({e.get('type','')}/{e.get('urgency','')})  {e.get('summary','')[:160]}"
+        for i, e in enumerate(candidates)
+    )
+    system = """You decide whether a new voice note is a CONTINUATION of an existing recent note or a NEW standalone thought.
+
+Rules:
+- MERGE only if the new text clearly extends, corrects, or adds detail to ONE existing note on the SAME specific topic.
+- If the new text introduces a different subject, decision, or action — it's NEW.
+- When in doubt — prefer NEW. A false merge silently loses information; a false new just creates one extra file.
+
+Return STRICT JSON only:
+{"action": "new" | "merge", "target_index": <int or null>, "confidence": <0.0-1.0>, "reason": "<short>"}"""
+    user = f"EXISTING RECENT NOTES:\n{cand_block}\n\nNEW TEXT:\n{new_text}"
+    try:
+        resp = anthropic_client.messages.create(
+            model=NOTES_CFG["classifier_model"],
+            max_tokens=200,
+            temperature=0,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        raw = resp.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = re.sub(r"\s*```\s*$", "", raw)
+        data = json.loads(raw)
+        action = data.get("action", "new")
+        idx = data.get("target_index")
+        conf = float(data.get("confidence", 0.0))
+        reason = data.get("reason", "")
+        target_id = None
+        if action == "merge" and isinstance(idx, int) and 0 <= idx < len(candidates):
+            target_id = candidates[idx]["id"]
+        else:
+            action = "new"
+        return {"action": action, "target_id": target_id, "confidence": conf, "reason": reason,
+                "candidate": candidates[idx] if target_id else None}
+    except Exception as e:
+        print(f"merge decision error: {e}", flush=True)
+        return {"action": "new", "target_id": None, "confidence": 0.0, "reason": str(e)}
+
+
+def _confirm_merge(decision, new_text):
+    """Hook for user confirmation. Currently auto-resolves by threshold.
+    Future: will show HUD panel and wait for user choice.
+    Returns final decision dict (same shape)."""
+    if decision["action"] == "merge" and decision["confidence"] >= MERGE_CONFIDENCE_THRESHOLD:
+        return decision
+    # Conservative fallback: don't merge
+    return {"action": "new", "target_id": None,
+            "confidence": decision["confidence"],
+            "reason": f"below threshold ({decision['confidence']:.2f}) — " + decision.get("reason", "")}
+
+
+def _apply_merge_append(candidate, new_text, duration_sec):
+    """Append new_text as a timestamped block to the candidate's markdown file."""
+    path = Path(candidate["path"])
+    now = datetime.datetime.now().astimezone()
+    ts_short = now.strftime("%H:%M")
+
+    original = path.read_text(encoding="utf-8")
+    fm_lines, body = _split_frontmatter(original)
+    if fm_lines:
+        fm_lines = _update_frontmatter_amended(fm_lines, now.isoformat(timespec="seconds"))
+
+    appended = body.rstrip() + f"\n\n## {ts_short} (voice)\n{new_text.strip()}\n"
+    if fm_lines:
+        path.write_text("\n".join(fm_lines) + "\n\n" + appended, encoding="utf-8")
+    else:
+        path.write_text(appended, encoding="utf-8")
+
+    # Append a merge record to the index (not a new file, but trail visibility)
+    try:
+        index_path = _resolve_path(NOTES_CFG["index_file"], now)
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        merge_entry = {
+            "id": f"{candidate['id']}+merge_{now.strftime('%H%M')}",
+            "created": now.isoformat(timespec="seconds"),
+            "path": str(path),
+            "contexts": candidate.get("contexts", []),
+            "type": candidate.get("type", ""),
+            "urgency": candidate.get("urgency", ""),
+            "merged_into": candidate["id"],
+            "summary": new_text.strip()[:200],
+        }
+        with index_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(merge_entry, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print(f"(merge index write failed: {e})", flush=True)
+
+    print(f"⇪ merged into: {path.name} (conf n/a)", flush=True)
+
+
+def save_or_merge_note(text, duration_sec):
+    """Entry point: classify → merge-check → either merge or save as new."""
+    if not NOTES_CFG:
+        print("notes plugin not configured", flush=True)
+        return
+    try:
+        meta = classify_note(text)
+        candidates = _find_merge_candidates(meta["contexts"])
+        decision = _decide_merge(text, candidates)
+        decision = _confirm_merge(decision, text)
+
+        if decision["action"] == "merge" and decision.get("target_id"):
+            cand = decision.get("candidate") or next(
+                (c for c in candidates if c["id"] == decision["target_id"]), None
+            )
+            if cand:
+                _apply_merge_append(cand, text, duration_sec)
+                return
+        # Fall through: save as new note (reuses classification we already computed)
+        _save_note_with_meta(text, duration_sec, meta)
+    except Exception as e:
+        print(f"save_or_merge_note error: {e}", flush=True)
+
+
+def _save_note_with_meta(text, duration_sec, meta):
+    """Write note using a pre-computed meta dict (avoids re-classifying)."""
+    now = datetime.datetime.now().astimezone()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H%M")
+    slug = _sanitize_slug(meta["title"])
+    note_id = f"{date_str}_{time_str}_{slug}"
+
+    target_dir = _resolve_path(NOTES_CFG["output_dir"], now)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    note_path = target_dir / f"{note_id}.md"
+
+    fm_lines = [
+        "---",
+        f"id: {note_id}",
+        f"created: {now.isoformat(timespec='seconds')}",
+        "source: voice",
+        f"duration_sec: {int(round(duration_sec))}",
+        f"contexts: {json.dumps(meta['contexts'], ensure_ascii=False)}",
+        f"type: {meta['type']}",
+        f"urgency: {meta['urgency']}",
+        f"tags: {json.dumps(meta['tags'], ensure_ascii=False)}",
+        f"related_stuck: {json.dumps(meta['related_stuck'], ensure_ascii=False)}",
+    ]
+    if meta.get("review"):
+        fm_lines.append("review: true")
+    fm_lines.append("---")
+    fm_lines.append("")
+    fm_lines.append(text.strip())
+    fm_lines.append("")
+
+    note_path.write_text("\n".join(fm_lines), encoding="utf-8")
+
+    index_path = _resolve_path(NOTES_CFG["index_file"], now)
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_entry = {
+        "id": note_id,
+        "created": now.isoformat(timespec="seconds"),
+        "path": str(note_path),
+        "contexts": meta["contexts"],
+        "type": meta["type"],
+        "urgency": meta["urgency"],
+        "related_stuck": meta["related_stuck"],
+        "summary": text.strip()[:200],
+    }
+    with index_path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(index_entry, ensure_ascii=False) + "\n")
+
+    print(
+        f"✎ saved: {note_path.name} "
+        f"[{', '.join(meta['contexts'])}] {meta['type']}/{meta['urgency']}",
+        flush=True,
+    )
+
+
 # ── Predict mode (T9) ────────────────────────────────────────────────────────
 _predict_controller = None
 
@@ -1291,9 +1528,372 @@ def install_monitor():
     Quartz.CGEventTapEnable(tap, True)
     print("Hotkey monitor installed.", flush=True)
 
+# ── Notes CLI (picker + voice amend) ─────────────────────────────────────────
+def _read_index_entries(limit=30):
+    if not NOTES_CFG:
+        return []
+    # Search a few recent months to collect up to `limit` entries.
+    entries = []
+    now = datetime.datetime.now()
+    seen = set()
+    for months_back in range(0, 12):
+        d = now - datetime.timedelta(days=30 * months_back)
+        path = _resolve_path(NOTES_CFG["index_file"], d)
+        if not path.exists() or str(path) in seen:
+            continue
+        seen.add(str(path))
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except Exception:
+            continue
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except Exception:
+                continue
+            # Skip malformed/empty entries
+            if not entry.get("path") or not entry.get("summary"):
+                continue
+            entries.append(entry)
+        if len(entries) >= limit * 3:
+            break
+    entries.sort(key=lambda e: e.get("created", ""), reverse=True)
+    return entries[:limit]
+
+
+def _curses_pick(entries):
+    """Arrow-key picker using stdlib curses. Returns entry or None."""
+    import curses
+
+    def _draw(stdscr):
+        curses.curs_set(0)
+        stdscr.keypad(True)
+        try:
+            curses.use_default_colors()
+            curses.init_pair(1, curses.COLOR_CYAN, -1)
+            curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_CYAN)
+            curses.init_pair(3, curses.COLOR_YELLOW, -1)
+        except Exception:
+            pass
+
+        idx = 0
+        top = 0
+        while True:
+            stdscr.erase()
+            h, w = stdscr.getmaxyx()
+            list_h = max(3, h - 4)
+            # Keep selection in view
+            if idx < top:
+                top = idx
+            elif idx >= top + list_h:
+                top = idx - list_h + 1
+
+            header = " govori notes — ↑/↓ select · Enter open · q quit "
+            stdscr.addnstr(0, 0, header.ljust(w)[:w], w, curses.color_pair(3) | curses.A_BOLD)
+
+            for row, i in enumerate(range(top, min(top + list_h, len(entries)))):
+                e = entries[i]
+                created = e.get("created", "")[:16].replace("T", " ")
+                ctxs = ",".join(e.get("contexts") or [])
+                summary = (e.get("summary") or "").replace("\n", " ")
+                line = f"  {created}  [{ctxs}]  {summary}"
+                line = line[: w - 1]
+                attr = curses.color_pair(2) | curses.A_BOLD if i == idx else 0
+                try:
+                    stdscr.addnstr(row + 1, 0, line.ljust(w - 1), w - 1, attr)
+                except curses.error:
+                    pass
+
+            footer = f" {idx + 1}/{len(entries)} "
+            try:
+                stdscr.addnstr(h - 1, 0, footer.ljust(w)[:w], w, curses.A_DIM)
+            except curses.error:
+                pass
+            stdscr.refresh()
+
+            ch = stdscr.getch()
+            if ch in (curses.KEY_UP, ord("k")):
+                idx = (idx - 1) % len(entries)
+            elif ch in (curses.KEY_DOWN, ord("j")):
+                idx = (idx + 1) % len(entries)
+            elif ch in (curses.KEY_HOME, ord("g")):
+                idx = 0
+            elif ch in (curses.KEY_END, ord("G")):
+                idx = len(entries) - 1
+            elif ch == curses.KEY_PPAGE:
+                idx = max(0, idx - list_h)
+            elif ch == curses.KEY_NPAGE:
+                idx = min(len(entries) - 1, idx + list_h)
+            elif ch in (ord("\n"), curses.KEY_ENTER, 10, 13):
+                return idx
+            elif ch in (ord("q"), 27):
+                return None
+
+    try:
+        selected = curses.wrapper(_draw)
+    except Exception as e:
+        print(f"(curses failed: {e})", flush=True)
+        return "FALLBACK"
+    if selected is None:
+        return None
+    return entries[selected]
+
+
+def _fzf_pick(entries):
+    import shutil, subprocess
+    fzf = shutil.which("fzf")
+    lines = []
+    for i, e in enumerate(entries):
+        created = e.get("created", "")[:16].replace("T", " ")
+        ctxs = ",".join(e.get("contexts") or [])
+        summary = (e.get("summary") or "").replace("\t", " ").replace("\n", " ")
+        lines.append(f"{i}\t{created}  [{ctxs}]  {summary}")
+    if fzf:
+        preview = "awk -F'\\t' '{print $1}' <<< {} | xargs -I{} sh -c 'cat \"$0\"' " \
+                  "$(printf '%s\\n' " + " ".join(f"'{e['path']}'" for e in entries) + " | sed -n \"$(({}+1))p\")"
+        # Simpler: use a temp python preview via env
+        env_paths = "\n".join(e["path"] for e in entries)
+        preview_cmd = f"python3 -c 'import sys,os; paths=os.environ[\"GOVORI_PATHS\"].split(chr(10)); i=int(sys.argv[1]); p=paths[i]; print(open(p).read()) if os.path.exists(p) else print(\"(missing)\")' {{1}}"
+        try:
+            result = subprocess.run(
+                [fzf, "--delimiter=\t", "--with-nth=2..",
+                 "--preview", preview_cmd, "--preview-window=right:60%:wrap",
+                 "--height=80%", "--reverse"],
+                input="\n".join(lines), text=True, capture_output=True,
+                env={**os.environ, "GOVORI_PATHS": env_paths},
+            )
+            if result.returncode != 0 or not result.stdout.strip():
+                return None
+            idx = int(result.stdout.split("\t", 1)[0])
+            return entries[idx]
+        except Exception as e:
+            print(f"(fzf failed: {e})", flush=True)
+    # Fallback: numbered menu
+    print()
+    for i, e in enumerate(entries):
+        created = e.get("created", "")[:16].replace("T", " ")
+        ctxs = ",".join(e.get("contexts") or [])
+        summary = (e.get("summary") or "")[:80]
+        print(f"  [{i:2d}] {created}  \033[36m[{ctxs}]\033[0m  {summary}")
+    print()
+    try:
+        raw = input("Select # (or q to quit): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        return None
+    if raw in ("", "q", "Q"):
+        return None
+    try:
+        return entries[int(raw)]
+    except (ValueError, IndexError):
+        print("Invalid selection.")
+        return None
+
+
+def _record_until_enter():
+    """Record audio from mic until user presses Enter. Returns numpy array."""
+    chunks = []
+
+    def cb(indata, frames, time_info, status):
+        chunks.append(indata.copy())
+
+    stream = sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="float32", callback=cb)
+    stream.start()
+    print("\n🎙  Recording... press [Enter] to stop.", flush=True)
+    try:
+        input()
+    except (EOFError, KeyboardInterrupt):
+        pass
+    stream.stop()
+    stream.close()
+    if not chunks:
+        return None
+    return np.concatenate(chunks, axis=0).flatten()
+
+
+def _amend_via_haiku(original_text, instruction):
+    anthropic_client = _get_anthropic_client()
+    if anthropic_client is None:
+        return None
+    system = """You edit a user's voice note based on their spoken instruction.
+Rules:
+- If instruction says "добавь/add/append" — append the new content as a new paragraph to the existing note.
+- If instruction says "перепиши/rewrite/replace" — produce a rewritten version preserving the original intent.
+- If instruction says "убери/удали/remove/delete X" — remove that part from the note.
+- If instruction is itself additional content without a verb, treat as append.
+- Preserve the original language of the note.
+- Return ONLY the full new note body (no frontmatter, no commentary, no markdown fences)."""
+    user = f"ORIGINAL NOTE:\n{original_text}\n\nINSTRUCTION (voice):\n{instruction}"
+    try:
+        resp = anthropic_client.messages.create(
+            model=NOTES_CFG["classifier_model"],
+            max_tokens=2000,
+            temperature=0,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return resp.content[0].text.strip()
+    except Exception as e:
+        print(f"Amend error: {e}", flush=True)
+        return None
+
+
+def _split_frontmatter(md):
+    """Returns (frontmatter_lines, body)."""
+    lines = md.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return [], md
+    end = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end = i
+            break
+    if end is None:
+        return [], md
+    return lines[: end + 1], "\n".join(lines[end + 1 :]).lstrip("\n")
+
+
+def _update_frontmatter_amended(fm_lines, timestamp):
+    """Add or extend `amended:` list in frontmatter."""
+    for i, line in enumerate(fm_lines):
+        if line.startswith("amended:"):
+            try:
+                arr = json.loads(line.split(":", 1)[1].strip())
+                if not isinstance(arr, list):
+                    arr = []
+            except Exception:
+                arr = []
+            arr.append(timestamp)
+            fm_lines[i] = f"amended: {json.dumps(arr, ensure_ascii=False)}"
+            return fm_lines
+    # Insert before closing ---
+    fm_lines.insert(-1, f"amended: {json.dumps([timestamp], ensure_ascii=False)}")
+    return fm_lines
+
+
+def cli_notes(args):
+    """Interactive picker + voice amendment."""
+    import difflib
+    if not NOTES_CFG:
+        print("notes plugin not installed. Run: govori plugin init notes")
+        return
+    entries = _read_index_entries(limit=30)
+    if not entries:
+        print("No notes found.")
+        return
+
+    # Priority: fzf (if installed) → curses (tty) → numbered menu
+    import shutil
+    picked = None
+    if shutil.which("fzf"):
+        picked = _fzf_pick(entries)
+    elif sys.stdin.isatty() and sys.stdout.isatty():
+        picked = _curses_pick(entries)
+        if picked == "FALLBACK":
+            picked = _fzf_pick(entries)
+    else:
+        picked = _fzf_pick(entries)
+    if not picked:
+        return
+
+    path = Path(picked["path"])
+    if not path.exists():
+        print(f"File missing: {path}")
+        return
+
+    original = path.read_text(encoding="utf-8")
+    fm_lines, body = _split_frontmatter(original)
+
+    print("\n" + "─" * 60)
+    print(f"\033[36m{path.name}\033[0m")
+    print("─" * 60)
+    print(body.strip() or "(empty)")
+    print("─" * 60)
+
+    try:
+        choice = input("\n[r] record voice edit  [o] open in editor  [q] quit: ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        return
+    if choice in ("", "q"):
+        return
+    if choice == "o":
+        editor = os.environ.get("EDITOR", "nano")
+        os.system(f"{editor} {path}")
+        return
+    if choice != "r":
+        return
+
+    audio = _record_until_enter()
+    if audio is None or len(audio) / SAMPLE_RATE < 0.3:
+        print("(too short)")
+        return
+
+    print("■ Transcribing…", flush=True)
+    instruction = _encode_and_transcribe(audio)
+    if not instruction:
+        print("(transcription failed)")
+        return
+    print(f"→ {instruction}")
+
+    print("✎ Amending via Claude…", flush=True)
+    new_body = _amend_via_haiku(body.strip(), instruction)
+    if not new_body:
+        print("(amend failed)")
+        return
+
+    # Diff
+    print("\n" + "─" * 60)
+    print("\033[33mDIFF:\033[0m")
+    diff = difflib.unified_diff(
+        body.strip().splitlines(), new_body.splitlines(),
+        lineterm="", fromfile="before", tofile="after",
+    )
+    for line in diff:
+        if line.startswith("+") and not line.startswith("+++"):
+            print(f"\033[32m{line}\033[0m")
+        elif line.startswith("-") and not line.startswith("---"):
+            print(f"\033[31m{line}\033[0m")
+        else:
+            print(line)
+    print("─" * 60)
+
+    try:
+        confirm = input("\nApply? [y/N]: ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        return
+    if confirm not in ("y", "yes", "д", "да"):
+        print("Cancelled.")
+        return
+
+    now = datetime.datetime.now().astimezone()
+    ts = now.isoformat(timespec="seconds")
+    if fm_lines:
+        fm_lines = _update_frontmatter_amended(fm_lines, ts)
+        path.write_text("\n".join(fm_lines) + "\n\n" + new_body.strip() + "\n", encoding="utf-8")
+    else:
+        path.write_text(new_body.strip() + "\n", encoding="utf-8")
+    print(f"✓ Saved: {path}")
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    print(f"Wisp started. Model: {MODEL}. Hold fn to record.", flush=True)
+    if "_NOTES_CLI_ARGS" in globals():
+        cli_notes(_NOTES_CLI_ARGS)
+        sys.exit(0)
+    if "_NOTE_CLI_TEXT" in globals():
+        text = _NOTE_CLI_TEXT.strip()
+        if not text:
+            print("(empty note)")
+            sys.exit(1)
+        if not NOTES_CFG:
+            print("notes plugin not installed. Run: govori plugin init notes")
+            sys.exit(1)
+        print(f"→ {text[:120]}{'…' if len(text) > 120 else ''}", flush=True)
+        save_or_merge_note(text, duration_sec=0)
+        sys.exit(0)
+    print(f"Govori started. Model: {MODEL}. Hold fn to record.", flush=True)
 
     app = AppKit.NSApplication.sharedApplication()
     app.setActivationPolicy_(AppKit.NSApplicationActivationPolicyAccessory)

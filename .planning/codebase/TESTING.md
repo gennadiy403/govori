@@ -21,7 +21,7 @@ No test framework, test runner, or test configuration file is present in the pro
 
 ## What Exists Instead
 
-The codebase is a single-file macOS daemon (`wisp.py`, 1912 lines). All logic is in one module with no separation between pure/testable logic and macOS-specific I/O. The following functions contain pure logic that could be unit tested without macOS APIs:
+The codebase is a single-file macOS daemon (`govori.py`, 1912 lines). All logic is in one module with no separation between pure/testable logic and macOS-specific I/O. The following functions contain pure logic that could be unit tested without macOS APIs:
 
 **Purely testable (no system I/O):**
 - `_load_yaml(path)` — file parsing
@@ -60,12 +60,12 @@ If tests were added, the natural mocking targets would be:
 # Mock OpenAI client
 from unittest.mock import MagicMock, patch
 
-with patch("wisp.client") as mock_client:
+with patch("govori.client") as mock_client:
     mock_client.audio.transcriptions.create.return_value.text = "test text"
     result = _encode_and_transcribe(audio_array)
 
 # Mock Anthropic client
-with patch("wisp._get_anthropic_client") as mock_get:
+with patch("govori._get_anthropic_client") as mock_get:
     mock_get.return_value = MagicMock()
     mock_get.return_value.messages.create.return_value.content[0].text = '{"title": "test"}'
     result = classify_note("some note text")
@@ -112,10 +112,10 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 ```
 
-Test file placement: `tests/test_wisp.py` co-located at project root.
+Test file placement: `tests/test_govori.py` co-located at project root.
 
-**Key isolation challenge:** `wisp.py` runs side-effecting code at module scope (config loading, `cli_main()` execution, OpenAI client construction, env var check with `sys.exit`). To test individual functions, either:
-1. Extract pure functions into a separate `wisp_core.py` module
+**Key isolation challenge:** `govori.py` runs side-effecting code at module scope (config loading, `cli_main()` execution, OpenAI client construction, env var check with `sys.exit`). To test individual functions, either:
+1. Extract pure functions into a separate `govori_core.py` module
 2. Mock `sys.argv`, `os.environ`, and `OpenAI` before importing
 3. Import individual functions after patching the module-level exit paths
 

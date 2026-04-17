@@ -5,10 +5,10 @@
 ## Directory Layout
 
 ```
-wisp/                          # Project root
-├── wisp.py                    # Entire application — daemon + CLI (1912 lines)
-├── wisp                       # Shell wrapper script (invokes wisp.py via venv)
-├── Wisp.shortcut              # macOS Shortcuts automation file
+govori/                          # Project root
+├── govori.py                    # Entire application — daemon + CLI (1912 lines)
+├── govori                       # Shell wrapper script (invokes govori.py via venv)
+├── Govori.shortcut              # macOS Shortcuts automation file
 ├── requirements.txt           # Python dependencies
 ├── README.md                  # User-facing docs
 ├── LICENSE
@@ -32,7 +32,7 @@ wisp/                          # Project root
 
 **Runtime config directory (outside repo, on user's machine):**
 ```
-~/.config/wisp/
+~/.config/govori/
 ├── config.yaml                # Base configuration (language, model, sample_rate, etc.)
 ├── env                        # API keys as shell exports (chmod 600)
 ├── .setup_done                # Sentinel file — setup wizard completed
@@ -42,7 +42,7 @@ wisp/                          # Project root
         ├── contexts.yaml      # Optional: AI classifier contexts
         └── stuck.yaml         # Optional: ongoing task links
 
-~/.wisp-notes/                 # Default note output (configurable)
+~/.govori-notes/                 # Default note output (configurable)
     ├── {year}/{month}/        # Monthly subdirectories
     │   └── {date}_{time}_{slug}.md   # Individual note files
     └── index/
@@ -52,20 +52,20 @@ wisp/                          # Project root
 ## Directory Purposes
 
 **`/` (root):**
-- Purpose: Application source — the entire codebase is `wisp.py` plus supporting files
-- Key files: `wisp.py` (application), `wisp` (shell entry point), `requirements.txt`
+- Purpose: Application source — the entire codebase is `govori.py` plus supporting files
+- Key files: `govori.py` (application), `govori` (shell entry point), `requirements.txt`
 
 **`examples/notes/`:**
-- Purpose: Reference plugin configuration users can copy to `~/.config/wisp/plugins/notes/`
+- Purpose: Reference plugin configuration users can copy to `~/.config/govori/plugins/notes/`
 - Contains: Fully-commented YAML files showing all available plugin fields
 - Key files: `plugin.yaml`, `contexts.yaml`, `stuck.yaml`
 
 **`extras/hud/`:**
 - Purpose: Optional Hammerspoon Lua script for a persistent process-running indicator
-- Contains: Standalone Lua script with no dependency on `wisp.py`
+- Contains: Standalone Lua script with no dependency on `govori.py`
 - Key files: `status_hud.lua`
 
-**`~/.config/wisp/` (runtime, not in repo):**
+**`~/.config/govori/` (runtime, not in repo):**
 - Purpose: Per-user configuration and plugin installation
 - Generated: Partially (setup wizard creates `env`, `config.yaml`, `.setup_done`)
 - Committed: No
@@ -73,23 +73,23 @@ wisp/                          # Project root
 ## Key File Locations
 
 **Entry Points:**
-- `wisp.py` line 1882: `__main__` block — daemon startup or note-text CLI path
-- `wisp.py` line 519: `cli_main()` — runs at module load, routes all CLI subcommands
-- `wisp` (shell script): activates `.venv` and executes `wisp.py`
+- `govori.py` line 1882: `__main__` block — daemon startup or note-text CLI path
+- `govori.py` line 519: `cli_main()` — runs at module load, routes all CLI subcommands
+- `govori` (shell script): activates `.venv` and executes `govori.py`
 
 **Configuration:**
-- `wisp.py` lines 44–46: `CONFIG_DIR`, `CONFIG_FILE`, `PLUGINS_DIR` path constants
-- `wisp.py` lines 72–84: `load_config()` — loads and merges `~/.config/wisp/config.yaml`
-- `wisp.py` lines 87–113: `load_plugins()` — discovers `~/.config/wisp/plugins/` directories
-- `~/.config/wisp/config.yaml`: user base config (not in repo)
-- `~/.config/wisp/env`: API keys (not in repo, chmod 600)
+- `govori.py` lines 44–46: `CONFIG_DIR`, `CONFIG_FILE`, `PLUGINS_DIR` path constants
+- `govori.py` lines 72–84: `load_config()` — loads and merges `~/.config/govori/config.yaml`
+- `govori.py` lines 87–113: `load_plugins()` — discovers `~/.config/govori/plugins/` directories
+- `~/.config/govori/config.yaml`: user base config (not in repo)
+- `~/.config/govori/env`: API keys (not in repo, chmod 600)
 
 **Core Logic:**
-- `wisp.py` lines 723–912: Audio capture and transcription pipeline
-- `wisp.py` lines 994–1127: Note classification and save pipeline
-- `wisp.py` lines 1129–1281: Merge-check pipeline
-- `wisp.py` lines 1339–1421: Predict/autocomplete mode
-- `wisp.py` lines 1423–1530: Global hotkey monitor (CGEventTap)
+- `govori.py` lines 723–912: Audio capture and transcription pipeline
+- `govori.py` lines 994–1127: Note classification and save pipeline
+- `govori.py` lines 1129–1281: Merge-check pipeline
+- `govori.py` lines 1339–1421: Predict/autocomplete mode
+- `govori.py` lines 1423–1530: Global hotkey monitor (CGEventTap)
 
 **Testing:**
 - No test files present in the repository
@@ -97,8 +97,8 @@ wisp/                          # Project root
 ## Naming Conventions
 
 **Files:**
-- Single snake_case `.py` file for application: `wisp.py`
-- Shell entry point matches project name: `wisp`
+- Single snake_case `.py` file for application: `govori.py`
+- Shell entry point matches project name: `govori`
 - Example/config files use snake_case with `.yaml` extension
 
 **Functions:**
@@ -167,8 +167,8 @@ wisp/                          # Project root
 - Generated: Yes (by GSD tooling)
 - Committed: Yes
 
-**`~/.config/wisp/` (runtime):**
-- Purpose: All user configuration and installed plugins; persists across wisp updates
+**`~/.config/govori/` (runtime):**
+- Purpose: All user configuration and installed plugins; persists across govori updates
 - Generated: Yes (by `cli_setup()` wizard)
 - Committed: No (outside repo)
 

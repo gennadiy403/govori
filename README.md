@@ -1,4 +1,4 @@
-# Wisp
+# Govori
 
 Voice dictation for macOS. Hold **fn** to record, release to transcribe and paste.
 
@@ -27,14 +27,14 @@ No menu bar icon. No electron. Just a 32px floating dot that pulses while you ta
 ## Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/wisp.git
-cd wisp
+git clone https://github.com/YOUR_USERNAME/govori.git
+cd govori
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create `~/.config/wisp/env` with your API keys:
+Create `~/.config/govori/env` with your API keys:
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -44,18 +44,18 @@ export ANTHROPIC_API_KEY=sk-ant-...  # optional, for notes plugin
 ## Run
 
 ```bash
-./wisp
+./govori
 ```
 
 Or with GPT-4o transcription model:
 
 ```bash
-./wisp --gpt
+./govori --gpt
 ```
 
 ## Configuration
 
-Base config lives at `~/.config/wisp/config.yaml`:
+Base config lives at `~/.config/govori/config.yaml`:
 
 ```yaml
 language: ru          # Whisper language
@@ -66,7 +66,7 @@ whisper_prompt: ""    # extra vocab to seed Whisper with
 
 ## Plugins
 
-Wisp supports plugins for extending what happens after transcription. Plugins live in `~/.config/wisp/plugins/<name>/`.
+Govori supports plugins for extending what happens after transcription. Plugins live in `~/.config/govori/plugins/<name>/`.
 
 ### Notes plugin
 
@@ -76,22 +76,22 @@ The notes plugin classifies your voice notes using Claude and saves them as stru
 
 ```bash
 # Scaffold a new notes plugin with default contexts
-wisp plugin init notes
+govori plugin init notes
 
 # Edit your contexts
-nano ~/.config/wisp/plugins/notes/contexts.yaml
+nano ~/.config/govori/plugins/notes/contexts.yaml
 ```
 
 Or copy the example:
 
 ```bash
-cp -r examples/notes ~/.config/wisp/plugins/notes
+cp -r examples/notes ~/.config/govori/plugins/notes
 ```
 
 **Plugin structure:**
 
 ```
-~/.config/wisp/plugins/notes/
+~/.config/govori/plugins/notes/
 ├── plugin.yaml       # plugin settings (output dir, classifier model)
 ├── contexts.yaml     # your life/work contexts for classification
 └── stuck.yaml        # optional: ongoing tasks to link notes to
@@ -133,9 +133,9 @@ Maybe we should add a canary step before the full rollout...
 ### Managing plugins
 
 ```bash
-wisp plugin list              # show installed plugins
-wisp plugin init my-plugin    # scaffold a new plugin
-wisp plugin remove my-plugin  # remove a plugin
+govori plugin list              # show installed plugins
+govori plugin init my-plugin    # scaffold a new plugin
+govori plugin remove my-plugin  # remove a plugin
 ```
 
 ## How it works

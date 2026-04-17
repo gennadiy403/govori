@@ -11,7 +11,7 @@
 
 **Environment:**
 - macOS only (uses native Cocoa/Quartz APIs — not portable to Linux/Windows)
-- Python virtualenv at `.venv/` (activated by the `wisp` launcher script)
+- Python virtualenv at `.venv/` (activated by the `govori` launcher script)
 
 **Package Manager:**
 - pip
@@ -20,7 +20,7 @@
 ## Frameworks
 
 **Core:**
-- No web framework — single-file application (`wisp.py`)
+- No web framework — single-file application (`govori.py`)
 - AppKit (via `pyobjc-framework-Cocoa`) — macOS HUD window, clipboard, NSMenu
 - Quartz (via `pyobjc-framework-Quartz`) — key event injection, Core Animation
 
@@ -28,7 +28,7 @@
 - Not detected — no test files, no pytest/unittest configuration
 
 **Build/Dev:**
-- None — no build step; run directly as `./wisp` or `python wisp.py`
+- None — no build step; run directly as `./govori` or `python govori.py`
 
 ## Key Dependencies
 
@@ -49,17 +49,17 @@
 ## Configuration
 
 **Environment:**
-- API keys loaded from `~/.config/wisp/env` (shell export file sourced by the `wisp` launcher)
+- API keys loaded from `~/.config/govori/env` (shell export file sourced by the `govori` launcher)
 - Required: `OPENAI_API_KEY`
 - Optional: `ANTHROPIC_API_KEY` (needed for notes plugin)
 - Configurable env var name via `api_key_env` in config.yaml (allows pointing at any env var for the OpenAI key)
 
 **Application config:**
-- `~/.config/wisp/config.yaml` — language, model, sample_rate, whisper_prompt, base_url, api_key_env
-- `~/.config/wisp/plugins/<name>/plugin.yaml` — per-plugin settings
-- `~/.config/wisp/plugins/<name>/contexts.yaml` — note classification contexts
-- `~/.config/wisp/plugins/<name>/stuck.yaml` — ongoing tasks for note linking
-- `~/.config/wisp/.setup_done` — sentinel file marking first-run setup complete
+- `~/.config/govori/config.yaml` — language, model, sample_rate, whisper_prompt, base_url, api_key_env
+- `~/.config/govori/plugins/<name>/plugin.yaml` — per-plugin settings
+- `~/.config/govori/plugins/<name>/contexts.yaml` — note classification contexts
+- `~/.config/govori/plugins/<name>/stuck.yaml` — ongoing tasks for note linking
+- `~/.config/govori/.setup_done` — sentinel file marking first-run setup complete
 
 **Build:**
 - No build config files
